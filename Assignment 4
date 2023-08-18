@@ -1,0 +1,70 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+from google.colab import drive
+drive.mount ('/content/drive')
+
+%load_ext google.colab.data_table
+
+co2_emissie = pd.read_csv("/content/drive/MyDrive/RawData/co2_emissions.csv", delimiter=",")
+co2_emissie
+
+co2_emissie.columns = ['country', '1990','2005','2017','2021']
+co2_emissie
+
+all_countries = co2_emissie.loc [3:]
+all_countries
+
+largest_countries = all_countries.sort_values(by='2021', ascending=False)
+top_5 = largest_countries.iloc[[0,1,4,5,6]]
+top_5
+
+# Graph 1: CO2 of the bigger countries
+
+top_5.set_index('country', inplace=True)
+
+ax = top_5.T.plot()
+plt.show()
+
+new_total = all_countries.loc [0:,'country':]
+
+new_total['verschil na 15 jaar'] = new_total['2005'] / new_total['1990']*100
+new_total['verschil na 27 jaar'] = new_total['2017'] / new_total['1990']*100
+new_total['verschil na 31 jaar'] = new_total['2021'] / new_total['1990']*100
+new_total
+
+all_countries2 = new_total.loc [0:,'country':]
+all_countries2
+
+all_countries3 = all_countries2.loc[0:,['country','verschil na 15 jaar','verschil na 27 jaar', 'verschil na 31 jaar']]
+all_countries3
+
+worst_and_best = all_countries3.sort_values(by='verschil na 31 jaar', ascending=False)
+top_bottem = pd.concat([worst_and_best.head(3), worst_and_best.tail(3)])
+top_bottem
+
+# Graph 2: worst and best changers
+
+top_bottem.set_index('country', inplace=True)
+
+ax = top_bottem.T.plot()
+plt.ylim(-100, 10000)
+plt.show()
+
+filtered_data = all_countries2[all_countries2['1990'] > 5]
+filtered_data
+
+worst_and_best2 = filtered_data.sort_values(by='1990', ascending=False)
+top_bottem2 = pd.concat([worst_and_best2.head(3), worst_and_best2.tail(3)])
+top_bottem2
+
+all_countries4 = top_bottem2.loc[:,['country','verschil na 15 jaar','verschil na 27 jaar', 'verschil na 31 jaar']]
+all_countries4
+
+# Graph 3: worst and best changers above 5 Mt
+all_countries4.set_index('country', inplace=True)
+
+ax = all_countries4.T.plot()
+plt.ylim(0, 600)
+plt.show()
